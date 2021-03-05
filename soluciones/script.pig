@@ -1,0 +1,11 @@
+Students = LOAD 'datasets/students.tsv' USING PigStorage( '\t', '-noschema' ) AS (student_id: Long, name: Chararray, surname: Chararray, gender: Chararray, age: Int);
+Grades = LOAD 'datasets/grades.tsv' USING PigStorage('\t', '-noschema') AS (student_id: Long, course: Chararray, marks: Double);
+StudentsRed = FOREACH Students GENERATE student_id, name, surname;
+StudentsDouble = FOREACH Students GENERATE student_id, name AS student_name, surname, gender, age, age*2 AS doubleAge;
+FemaleStudents = FILTER Students BY gender == 'F';
+StudentsOver25 = FILTER Students BY age>25;
+SPLIT Grades INTO PassGrades IF marks>=5, FailGrades OTHERWISE;
+GroupedGrades = GROUP Grades BY student_id;
+LStudentsGrades = JOIN Students BY student_id LEFT, Grades BY student_id;
+STORE StudentsGrades INTO 'results_1' USING PigStorage('\t','-noschema');
+STORE StudentsOver25 INTO 'results_2' USING PigStorage('\t','-noschema');
